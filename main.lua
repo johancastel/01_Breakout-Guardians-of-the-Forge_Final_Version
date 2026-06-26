@@ -12,6 +12,6 @@ function love.draw()
 
     love.graphics.print("Breakout: Guardians of the Forge", 220, 180)
 
-    love.graphics.print("Proyecto base - Love2D", 250, 210)
+    love.graphics.print("Jhoan Castelblanco - Julian Orellanos", 250, 210)
 
 end
