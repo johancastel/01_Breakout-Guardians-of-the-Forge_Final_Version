@@ -30,110 +30,102 @@
 
             LOADING_LEVEL
 
-                Cargar el nivel actual
-
-                Crear los bloques
-
-                Inicializar la pelota
-
-                Posicionar la barra
-
-                Inicializar la interfaz
-
-                Cambiar estado a PLAY
+                level:loadLevel(currentLevel)
+                ball:reset()
+                paddle:new() -- Posicionar la barra en el centro
+                ui:showMessage("CARGANDO NIVEL...")
+                game:changeState("PLAY")
 
 
             PLAY
 
-                Actualizar la barra
+                -- Actualización con delta time (dt)
+                paddle:update(dt)
+                ball:update(dt)
+                level:update(dt)
+                powerUp:update(dt)
 
-                Actualizar la pelota
+                -- Procesamiento de Colisiones
+                Detectar colisión ball con paddle:
+                    Si colisionan entonces
+                        ball:bounce()
+                        paddle:catchPower(powerUp)
+                    Fin Si
 
-                Detectar colisiones
+                Detectar colisión ball con brick en level.bricks:
+                    Si colisionan entonces
+                        ball:bounce()
+                        brick:hit()
+                        Si brick:health == 0 entonces
+                            brick:destroy()
+                            Si brick:containsPower entonces
+                                brick:releasePower()
+                                powerUp:spawn()
+                            Fin Si
+                        Fin Si
+                    Fin Si
 
-                Actualizar bloques
-
-                Actualizar poderes
-
-                Actualizar la interfaz
-
-                Dibujar todos los elementos del juego
+                -- Dibujar elementos
+                paddle:draw()
+                ball:draw()
+                level:draw()
+                powerUp:draw()
+                ui:drawHUD()
 
                 Si el jugador presiona ESC entonces
-
-                    Cambiar estado a PAUSE
-
+                    game:changeState("PAUSE")
                 Fin Si
 
-                Si el jugador pierde todas las vidas entonces
-
-                    Cambiar estado a GAME_OVER
-
+                Si ball.y > pantalla.alto entonces
+                    game.lives = game.lives - 1
+                    Si game.lives == 0 entonces
+                        game:changeState("GAME_OVER")
+                    Sino
+                        ball:reset()
+                    Fin Si
                 Fin Si
 
-                Si todos los bloques fueron destruidos entonces
-
-                    Cambiar estado a LEVEL_COMPLETE
-
+                Si level:isCompleted() entonces
+                    game:changeState("LEVEL_COMPLETE")
                 Fin Si
 
 
             PAUSE
 
-                Mostrar menú de pausa
-
-                Esperar la decisión del jugador
-
+                ui:showMessage("PAUSA - Seleccione CONTINUAR o SALIR")
+                
                 Si el jugador selecciona CONTINUAR entonces
-
-                    Cambiar estado a PLAY
-
+                    game:changeState("PLAY")
                 Fin Si
 
                 Si el jugador selecciona SALIR entonces
-
-                    Finalizar aplicación
-
+                    love.event.quit()
                 Fin Si
 
 
             LEVEL_COMPLETE
 
-                Mostrar mensaje de nivel completado
-
-                Calcular bonificación
-
-                Incrementar el número del nivel
+                ui:showMessage("¡NIVEL COMPLETADO!")
+                game:nextLevel()
 
                 Si existen más niveles entonces
-
-                    Cambiar estado a LOADING_LEVEL
-
+                    game:changeState("LOADING_LEVEL")
                 En caso contrario
-
-                    Cambiar estado a TITLE
-
+                    game:changeState("TITLE")
                 Fin Si
 
 
             GAME_OVER
 
-                Mostrar pantalla de Game Over
-
-                Mostrar puntaje final
+                ui:showMessage("GAME OVER - Puntaje Final: " .. game.score)
 
                 Si el jugador presiona ENTER entonces
-
-                    Reiniciar partida
-
-                    Cambiar estado a TITLE
-
+                    game:restartGame()
+                    game:changeState("TITLE")
                 Fin Si
 
                 Si el jugador selecciona SALIR entonces
-
-                    Finalizar aplicación
-
+                    love.event.quit()
                 Fin Si
 
         Fin Según
